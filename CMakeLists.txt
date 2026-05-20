@@ -1,17 +1,16 @@
-cmake_minimum_required(VERSION 3.12)
+# Generated Cmake Pico project file
 
-set(FREERTOS_KERNEL_PATH ~/git/FreeRTOS-Kernel) # TODO: update?
-set(PICO_SDK_PATH ~/git/pico-sdk)
-set(PICO_BOARD pico2)
-set(PICO_PLATFORM rp2350-arm-s)
-
-# Pull in SDK (must be before project)
-include(pico_sdk_import.cmake)
-
-project(pico_freertos C CXX ASM)
+cmake_minimum_required(VERSION 3.13)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+set(FREERTOS_KERNEL_PATH ~/git/FreeRTOS-Kernel) # TODO: update?
+set(PICO_SDK_PATH ~/git/pico-sdk)
+
+# Initialise pico_sdk from installed location
+# (note this can come from environment, CMake cache etc)
 
 # == DO NOT EDIT THE FOLLOWING LINES for the Raspberry Pi Pico VS Code Extension to work ==
 if(WIN32)
@@ -27,26 +26,23 @@ if (EXISTS ${picoVscode})
     include(${picoVscode})
 endif()
 # ====================================================================================
+set(PICO_BOARD pico2 CACHE STRING "Board type")
+set(PICO_PLATFORM rp2350-arm-s)
 
-# Initialize the SDK
+# Pull in Raspberry Pi Pico SDK (must be before project)
+include(pico_sdk_import.cmake)
+
+project(pico2_freertos_template C CXX ASM)
+
+# Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
-add_compile_options(-Wall
-        -Wno-format          # int != int32_t as far as the compiler is concerned because gcc has int32_t as long int
-        -Wno-unused-function # we have some for the docs that aren't called
-        )
-if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-    add_compile_options(-Wno-maybe-uninitialized)
-endif()
-
+# Pull in FreeRTOS
 if (NOT FREERTOS_KERNEL_PATH AND NOT DEFINED ENV{FREERTOS_KERNEL_PATH})
-    message("Skipping FreeRTOS examples as FREERTOS_KERNEL_PATH not defined")
-    return()
+    message(FATAL_ERROR "FREERTOS_KERNEL_PATH must be defined!")
 endif()
-
 include(FreeRTOS_Kernel_import.cmake)
 
-# add_subdirectory(hello_freertos)
 
 # Example running FreeRTOS on 1 core
 add_executable(hello_freertos_one_core
@@ -74,6 +70,7 @@ if(PICO_CYW43_SUPPORTED)
 endif()
 pico_add_extra_outputs(hello_freertos_one_core)
 
+
 # Example running FreeRTOS on 2 cores
 add_executable(hello_freertos_two_cores
     hello_freertos.c
@@ -94,6 +91,7 @@ if(PICO_CYW43_SUPPORTED)
         )
 endif()
 pico_add_extra_outputs(hello_freertos_two_cores)
+
 
 # Example running FreeRTOS on 2 cores with static RAM allocation
 add_executable(hello_freertos_static_allocation
@@ -123,6 +121,8 @@ if(PICO_CYW43_SUPPORTED)
 endif()
 pico_add_extra_outputs(hello_freertos_static_allocation)
 
+
 # Enable usb output, disable uart output
 pico_enable_stdio_usb(hello_freertos_one_core 1)
 pico_enable_stdio_uart(hello_freertos_one_core 0)
+

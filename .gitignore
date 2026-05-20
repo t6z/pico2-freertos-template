@@ -1,3 +1,4 @@
+
 .idea
 _deps
 cmake-*
@@ -5,3 +6,4 @@ build
 build-*
 build_*
 .DS_Store
+!.vscode/*
